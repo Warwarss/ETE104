@@ -29,20 +29,25 @@ main        mov #100,R13
             call #function
             nop
 
-function    sub #1,R13      ;Sıfır mı değil mi kontrol ediyorum
-            jn Zero_Check   ;Sıfırsa Return komudu
-            add #1,R13      ;Çıkardığım sayıyı tekrar düzeltiyorum
-            add R13,R14
-            sub #1,R13  ;Fonksiyon
-            call #function
+function     sub #1,R13      ;Sıfır mı değil mi kontrol ediyorum
+             jn Zero_Check   ;Sıfırsa Return komudu
+             add #1,R13      ;Çıkardığım sayıyı tekrar düzeltiyorum
+             add R13,R14
+Carry_Return jc Carry_Condition  ;Register'i aşıyorsa jump komudu
+             sub #1,R13          ;Fonksiyon
+             call #function
 
-            ret
+             ret
+
+Carry_Condition add #1,R15            ;R15'e bir ekleniyor
+                jc  Bigger_Than_32Bit ;32'bit ile gösterilemeyecek kadar büyükse es geçiyor
+                clrc                  ;Carry bit rest
+                jmp Carry_Return      ;Geri dönüyorum
 
 
 
-
-
-Zero_Check  nop
+Zero_Check        nop
+Bigger_Than_32Bit nop
 
 ;-------------------------------------------------------------------------------
 ; Stack Pointer definition
