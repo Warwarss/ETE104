@@ -24,10 +24,6 @@ StopWDT     mov.w   #WDTPW|WDTHOLD,&WDTCTL  ; Stop watchdog timer
 ; Main loop here
 ;-------------------------------------------------------------------------------
             mov    #0x2400,R10
-            mov    #1,R9
-            mov    #1,R8
-            mov    #0,R7
-            mov    #0,R6
 
             mov    #0,2(R10)
             mov    #1,0(R10)
