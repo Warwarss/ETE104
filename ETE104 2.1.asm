@@ -23,31 +23,35 @@ StopWDT     mov.w   #WDTPW|WDTHOLD,&WDTCTL  ; Stop watchdog timer
 ;-------------------------------------------------------------------------------
 ; Main loop here
 ;-------------------------------------------------------------------------------
-main        mov #100,R13
-            mov #0,R14
-            mov #0,R15
+main        mov #2049,R13
             call #function
             nop
 
-function     sub #1,R13      ;Sıfır mı değil mi kontrol ediyorum
-             jn Zero_Check   ;Sıfırsa Return komudu
-             add #1,R13      ;Çıkardığım sayıyı tekrar düzeltiyorum
-             add R13,R14
-Carry_Return jc Carry_Condition  ;Register'i aşıyorsa jump komudu
-             sub #1,R13          ;Fonksiyon
-             call #function
+function     cmp #0,R13      ;Sıfır mı değil mi kontrol ediyorum
+             jz Zero_Check   ;Sıfırsa fonksiyondan çıkıyor
+
+             push #0         ;Stack'e toplayacağım sayıların sonucunu yazacağım için sıfırlıyorum
+             push #0
+
+             add  R13,&0x43FC  ;R14'e göndereceğim değeri RAM'e yazıyorum
+             adc  &0x43FA      ;Carry bitleri buraya gönderiyorum
+
+             jc   Bigger_Than_32Bit ;Sonuç 32 bitten büyük çıkacaksa buraya takılıyor
+
+             mov  #17300,SP    ;Stack bitmesin diye Pointeri sabit tutuyorum
+
+
+             sub #1,R13      ;Fonksiyon
+             call #function  ;Rekursive
 
              ret
 
-Carry_Condition add #1,R15            ;R15'e bir ekleniyor
-                jc  Bigger_Than_32Bit ;32'bit ile gösterilemeyecek kadar büyükse es geçiyor
-                clrc                  ;Carry bit rest
-                jmp Carry_Return      ;Geri dönüyorum
 
+Bigger_Than_32Bit setz        ;Hata biti
+Zero_Check
+                  mov &0x43FC,R14 ;Sonucu yazıyorum
+                  mov &0x43FA,R15 ;Sonucu yazıyorum
 
-
-Zero_Check        nop
-Bigger_Than_32Bit nop
 
 ;-------------------------------------------------------------------------------
 ; Stack Pointer definition
