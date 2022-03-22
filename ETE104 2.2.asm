@@ -23,7 +23,7 @@ StopWDT     mov.w   #WDTPW|WDTHOLD,&WDTCTL  ; Stop watchdog timer
 ;-------------------------------------------------------------------------------
 ; Main loop here
 ;-------------------------------------------------------------------------------
-main        mov #10000,R13
+main        mov #65535,R13
             call #function
             nop
 
@@ -50,12 +50,12 @@ function     cmp #0,R13      ;Sıfır mı değil mi kontrol ediyorum
 Bigger_Than_32Bit mov #0,R14
                   mov #0,R15      ;32 Bitten büyükse sayı registerlara sıfır yazılıyor
                   jmp Complete
-                  
+
 Zero_Check
                   mov &0x43FC,R14 ;Sonucu yazıyorum
                   mov &0x43FA,R15 ;Sonucu yazıyorum
-                  
-Complete          nop         
+
+Complete          nop
 
 
 ;-------------------------------------------------------------------------------
