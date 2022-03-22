@@ -23,37 +23,39 @@ StopWDT     mov.w   #WDTPW|WDTHOLD,&WDTCTL  ; Stop watchdog timer
 ;-------------------------------------------------------------------------------
 ; Main loop here
 ;-------------------------------------------------------------------------------
-            mov    #0x2400,R10     ;Pointeri ayarlıyorum
+main        mov #10000,R13
+            call #function
+            nop
 
-            mov    #0,2(R10)       ;İlk sayıyı sıfırlıyorum
-            mov    #0,0(R10)
+function     cmp #0,R13      ;Sıfır mı değil mi kontrol ediyorum
+             jz Zero_Check   ;Sıfırsa fonksiyondan çıkıyor
 
-            mov    #0,6(R10)       ;İkinci sıradakı sayıyı 1 yapıyorum
-            mov    #1,4(R10)
+             push #0         ;Stack'e toplayacağım sayıların sonucunu yazacağım için sıfırlıyorum
+             push #0
 
+             add  R13,&0x43FC  ;R14'e göndereceğim değeri RAM'e yazıyorum
+             adc  &0x43FA      ;Carry bitleri buraya gönderiyorum
 
-Loop
-            push   6(R10)           ;İkinci sayının büyük kısmını Stack'e yazıyorum
-            add    2(R10),6(R10)    ;Birinci sayının büyük kısmı ile ikinci sayının büyük kısmı toplanıyor
-            mov    6(R10),10(R10)   ;Ve sonuç üçüncü sayının büyük kısmına yazılıyor
-            pop    6(R10)           ;İkinci sayının büyük kısmını geri yazıyorum
+             jc   Bigger_Than_32Bit ;Sonuç 32 bitten büyük çıkacaksa buraya takılıyor
 
-            push   4(R10)           ;İkinci sayının küçük kısmını Stack'e yazıyorum
-            add    0(R10),4(R10)    ;Birinci sayıyla ikinci sayının küçük kısmı toplanıyor
-            adc    10(R10)          ;Eğer carry bit varsa üçüncü sayının büyük kısmına ekleniyor
-            mov    4(R10),8(R10)    ;Toplam, üçüncü sayının küçük kısmına yazılıyor
-            pop    4(R10)           ;Stack'e kaydettiğim sayıyı geri yazıyorum
-
-            add    #0x0004,R10      ;Pointeri 4 arttırıyorum
-            jmp    Loop             ;Loop
+             mov  #17300,SP    ;Stack bitmesin diye Pointeri sabit tutuyorum
 
 
+             sub #1,R13      ;Fonksiyon
+             call #function  ;Rekursive
+
+             ret
 
 
-
-
-
-
+Bigger_Than_32Bit mov #0,R14
+                  mov #0,R15      ;32 Bitten büyükse sayı registerlara sıfır yazılıyor
+                  jmp Complete
+                  
+Zero_Check
+                  mov &0x43FC,R14 ;Sonucu yazıyorum
+                  mov &0x43FA,R15 ;Sonucu yazıyorum
+                  
+Complete          nop         
 
 
 ;-------------------------------------------------------------------------------
