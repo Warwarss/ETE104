@@ -1,0 +1,80 @@
+#include <msp430.h>
+
+
+/**
+ * blink.c
+ */
+void click()
+{
+    int j=0;
+    while (1)
+    {
+    P1OUT |= 0x01;
+    for(j=10000; j>0; j--);
+    int j;
+      if (P2IN==0xFD)
+      {
+          for(j=10000; j>0; j--);
+          if (P2IN==0xFD)
+        {
+          blink();
+          break;
+        }
+      }
+    }
+};
+
+void blink()
+{
+    int j=0;
+    while(1)
+    {
+    P1OUT |= 0x01;
+    for(j=10000; j>0; j--);
+    P1OUT &= !0x01;
+    for(j=10000; j>0; j--);
+     if (P2IN==0xFD)
+     {
+         for(j=10000; j>0; j--);
+          if (P2IN==0xFD)
+          break;
+     }
+    }
+
+};
+
+void main(void)
+{
+    WDTCTL = WDTPW | WDTHOLD;       // stop watchdog timer
+    P1DIR |= 0x01;                  // configure P1.0 as output
+    P2DIR &= !BIT1;                 // P2.1 AS INPUT
+    P2REN |= BIT1;                  //
+    P2OUT |= BIT1;                  //
+    P1OUT &=!BIT0;
+
+    volatile unsigned int i;        // volatile to prevent optimization
+
+    while(1)
+    {
+       P1OUT &= !0x01;
+
+       if (P2IN==0xFD)
+       {
+         for(i=10000; i>0; i--);
+           if (P2IN==0xFD)
+           {
+                click();
+                for(i=10000; i>0; i--);     // delay
+           }
+       }
+    }
+}
+
+
+// P1OUT |= 0x01;
+// P1OUT ^= 0x01;                // toggle P1.0
+
+
+
+
+
