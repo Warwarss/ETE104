@@ -49,12 +49,8 @@ int main(void)
                       case 2:
                           blink();
                           P1OUT &=!BIT0;
-                          j=j+1;
-
-                      case 3:
                           j=0;
                           break;
-
         }
                   }
               }
