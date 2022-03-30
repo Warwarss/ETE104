@@ -1,19 +1,20 @@
 #include <stdio.h>
 #include <msp430.h>
-void blink()
+void blink()                  //BLINK FONKSİYONU,TUŞA TEKRAR BASILDIĞINDA FONKSİYONDAN ÇIKILIYOR
 {
     int i=0;
     int j=0;
     while(j<1)
     {
     P1OUT |= 0x01;
-    P4OUT |= BIT7;
     for(i=10000; i>0; i--);
     P1OUT &= !0x01;
-    P4OUT &=!BIT7;
     for(i=10000; i>0; i--);
       while (( P2IN & BIT1 ) == 0)
-                  {
+                 {
+                      P1OUT |= 0x01;
+                      for(i=10000; i>0; i--);
+                      P1OUT &= !0x01;
                       for(i=10000; i>0; i--);
                       if (P2IN & BIT1)
                       {
@@ -27,35 +28,29 @@ int main(void)
 {
        WDTCTL = WDTPW | WDTHOLD;       // stop watchdog timer
        P1DIR |= 0x01;                  // configure P1.0 as output
-       P4DIR |= BIT7;                  // configure P4.7 as output
-       P2DIR &= !BIT1;                 // P2.1 AS INPUT
-       P2REN |= BIT1;                  // P2.1 PULL UP/DOWN ACTIVE
+       P2DIR &= !BIT1;                 // P2.1 INPUT
+       P2REN |= BIT1;                  // P2.1 PULL UP/DOWN AKTİF
        P2OUT |= BIT1;                  // P2.1 PULL UP
-       P1OUT &=!BIT0;                  // P1.0 SET AS 0
-       P4OUT &=!BIT7;
+       P1OUT &=!BIT0;                  // IŞIĞI KAPIYORUM
        volatile unsigned int i;        // volatile to prevent optimization
        volatile unsigned int j=0;
            while(1)
            {
-           //  P1OUT &= !0x01;
-              for(i=10000; i>0; i--);
-              while (( P2IN & BIT1 ) == 0)
+              while (( P2IN & BIT1 ) == 0)    //TUŞA BASILI TUTULDUĞUNDA P2IN xxxx xx0x Oluyor.
               {
-                  for(i=10000; i>0; i--);
-                  if (P2IN & BIT1 )
+                  for(i=10000; i>0; i--);     //BEKLEME SÜRESİ
+                  if (P2IN & BIT1 )           //TUŞA BASILMADIĞINDA P2IN xxxx xx1x Oluyor.
                   {
-                      j=j+1;
+                      j=j+1;                  //TUŞA 1 KERE BASILIRSA BU DEĞİŞKEN 1 ARTIYOR
                       switch (j)
         {
-                      case 1:
-                          P1OUT |= 0x01;
-                          P4OUT |= BIT7;
+                      case 1:                 //J=0 İKEN (YANİ IŞIK KAPALI İKEN) TUŞA BASILIRSA;
+                          P1OUT |= 0x01;      //LED YANIYOR
                           break;
-                      case 2:
-                          blink();
-                          P1OUT &=!BIT0;
-                          P4OUT &=!BIT7;
-                          j=0;
+                      case 2:                 //J=1 İKEN (YANI IŞIK AÇIK İKEN) TUŞA BASILIRSA;
+                          blink();            //YANIP SÖNME FONKSİYONU ÇAĞIRILIYOR
+                          P1OUT &=!BIT0;      //FONKSİYONDAN ÇIKILDIĞI ZAMAN IŞIK SÖNÜYOR (SON DURUM)
+                          j=0;                //BAŞA DÖNDÜĞÜMÜZ İÇİN DEĞİŞKENİ SIFIRLIYORUM
                           break;
         }
                   }
